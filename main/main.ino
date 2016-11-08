@@ -42,7 +42,10 @@
 
 // initialize the library with the numbers of the interface pins
 LiquidCrystal lcd(12, 11, 5, 4, 3, 2);
-int RefTemp = 50;
+float minTemp = 30;
+float maxTemp = 80;
+int counter = 0;
+double tempSum = 0;
 
 void setup() {
   // set up the LCD's number of columns and rows:
@@ -54,17 +57,46 @@ void setup() {
 }
 
 void loop() {
-  int val;                //Create an integer variable
-  val=analogRead(0);      //Read the analog port 0 and store the value in val
-  Serial.println(val);    //Print the value to the serial port
-  delay(1000);            //Wait one second before we do it again
+  float analog0;
+  float analog1;
+  float refTemp;
+  int refIntTemp;
+  double temp;
+  double R;
+  
+  analog0 = analogRead(0);      //Read the analog port 0 and store the value in val
+  analog1 = analogRead(1);
+
+  refTemp = ((maxTemp-minTemp)/1023)*analog0 + minTemp;
+  refIntTemp = refTemp;
+  
+  R = 2250600/analog1 - 2200;
+  temp = -(R - 3965.26)/70.2873;
+  
   lcd.setCursor(0, 0);    // Clear 
   lcd.print("Ref.temp: ");// Print out reftemp 
-  lcd.print(RefTemp);     
+  
+  lcd.print(refIntTemp);
+  
+  lcd.print((char)223);
+  lcd.print("C");     
   lcd.setCursor(0, 1);    // Clear 
   lcd.print("Temp: ");    // print out current temp
-  lcd.print(val);
- 
-  
+
+  if (counter < 10)
+  {
+    tempSum = tempSum + temp;
+    counter = counter + 1;
+  }
+  else
+  {
+    counter = 0;
+    temp = tempSum/10;
+    tempSum = 0;
+    lcd.print(temp);
+    lcd.print((char)223);
+    lcd.print("C");
+  }
+  delay(100);            //Wait one second before we do it again
 }
 

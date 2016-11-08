@@ -42,8 +42,12 @@
 
 // initialize the library with the numbers of the interface pins
 LiquidCrystal lcd(12, 11, 5, 4, 3, 2);
-float minTemp = 30;
-float maxTemp = 80;
+
+// Constants
+float MINTEMP = 30;
+float MAXTEMP = 80;
+
+// Global variables
 int counter = 0;
 double tempSum = 0;
 
@@ -64,25 +68,30 @@ void loop() {
   double temp;
   double R;
   
-  analog0 = analogRead(0);      //Read the analog port 0 and store the value in val
+  // --- Read analog values
+  analog0 = analogRead(0);
   analog1 = analogRead(1);
 
-  refTemp = ((maxTemp-minTemp)/1023)*analog0 + minTemp;
-  refIntTemp = refTemp;
+  // --- Do calculations
+  refTemp = ((MAXTEMP-MINTEMP)/1023)*analog0 + MINTEMP;	// Set ref-temp from potentiometer
+  refIntTemp = refTemp;									// Floor it to an integer
+  R = 2250600/analog1 - 2200;							// Calculate resistance
+  temp = -(R - 3965.26)/70.2873;						// Calculate the temperature
   
-  R = 2250600/analog1 - 2200;
-  temp = -(R - 3965.26)/70.2873;
+  // --- Set LCD display strings  
   
-  lcd.setCursor(0, 0);    // Clear 
-  lcd.print("Ref.temp: ");// Print out reftemp 
-  
-  lcd.print(refIntTemp);
-  
+  // Line 1 - Reference temperature
+  lcd.setCursor(0, 0);
+  lcd.print("Ref.temp: ");
+  lcd.print(refIntTemp);	// The ref-temp value
   lcd.print((char)223);
   lcd.print("C");     
-  lcd.setCursor(0, 1);    // Clear 
-  lcd.print("Temp: ");    // print out current temp
+  
+  // Line 2 - The measured, calculated temperature
+  lcd.setCursor(0, 1);
+  lcd.print("Temp: ");
 
+  // (Mean value from 10 samples)
   if (counter < 10)
   {
     tempSum = tempSum + temp;
@@ -93,10 +102,11 @@ void loop() {
     counter = 0;
     temp = tempSum/10;
     tempSum = 0;
-    lcd.print(temp);
+    lcd.print(temp);		// The temperature value
     lcd.print((char)223);
     lcd.print("C");
   }
-  delay(100);            //Wait one second before we do it again
+  
+  delay(100);
 }
 

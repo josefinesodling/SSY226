@@ -71,7 +71,7 @@ void loop() {
     analog1Sum = 0;
 	  analog2Sum = 0;
   }
-  if (counter < SAMPLETIME) {
+  if (counter2 < SAMPLETIME) {
     analog1Sum2 += analog1/SAMPLETIME;
     analog2Sum2 += analog2/SAMPLETIME;
     counter2 += 1;

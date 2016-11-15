@@ -1,7 +1,12 @@
 clear all
 close all
 
+<<<<<<< HEAD
 fid = fopen('heating_2l_withpump.txt')
+=======
+%2L, pump off while cooling
+fid = fopen('dataex4.txt')
+>>>>>>> origin/master
 data = fscanf(fid, '%f');
 fclose(fid);
 

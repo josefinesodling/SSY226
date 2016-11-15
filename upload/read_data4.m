@@ -2,7 +2,7 @@ clear all
 close all
 
 % 3L, pump off while cooling
-fid = fopen('dataex5.txt')
+fid = fopen('data5A_heaton_pumpon_3.txt')
 data = fscanf(fid, '%f');
 fclose(fid);
 

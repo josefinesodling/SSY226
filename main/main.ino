@@ -10,12 +10,16 @@ LiquidCrystal lcd(12, 11, 5, 4, 3, 2); // The numbers of the interface pins
 int DEBUG = 0;
 float MINTEMP = 30;
 float MAXTEMP = 80;
-int SAMPLETIME = 10; // 60 seconds
+int SAMPLETIME = 600; // 60 seconds
+int DISPLAYTIME = 10;
 
 // Global variables
 int counter = 0;
+int counter2 = 0;
 double analog1Sum = 0;
 double analog2Sum = 0;
+double analog1Sum2 = 0;
+double analog2Sum2 = 0;
 unsigned long time;
 double a = 1.675091827e-3;
 double b = 1.857536553e-4;
@@ -47,15 +51,14 @@ void loop() {
   refT_int = round(refT);
   
   // Mean value from SAMPLETIME samples
-  if (counter < SAMPLETIME) {
-	  analog1Sum += analog1/SAMPLETIME;
-	  analog2Sum += analog2/SAMPLETIME;
+  if (counter < DISPLAYTIME) {
+	  analog1Sum += analog1/DISPLAYTIME;
+	  analog2Sum += analog2/DISPLAYTIME;
 	  counter += 1;
+
   }
   else {
-    Serial.println(time);
-    Serial.println(analog1Sum);
-    Serial.println(analog2Sum);
+    
 	  R1 = (2250600/analog1Sum - 2200);			    // Mean resistance
     T1 = log(R1);
     T1 = 1 /(a + (b + (c * T1 * T1 ))* T1 );
@@ -67,6 +70,19 @@ void loop() {
 	  counter = 0;
     analog1Sum = 0;
 	  analog2Sum = 0;
+  }
+  if (counter < SAMPLETIME) {
+    analog1Sum2 += analog1/SAMPLETIME;
+    analog2Sum2 += analog2/SAMPLETIME;
+    counter2 += 1;
+  }
+  else {
+    Serial.println(time);
+    Serial.println(analog1Sum2);
+    Serial.println(analog2Sum2);
+    counter2 = 0;
+    analog1Sum2 = 0;
+    analog2Sum2 = 0;
   }
   
   // ------------------------------

@@ -1,6 +1,7 @@
 clear all
 close all
 
+%2L, pump off while cooling
 fid = fopen('dataex4.txt')
 data = fscanf(fid, '%f');
 fclose(fid);

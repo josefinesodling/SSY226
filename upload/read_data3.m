@@ -1,12 +1,7 @@
 clear all
 close all
 
-<<<<<<< HEAD
-fid = fopen('heating_2l_withpump.txt')
-=======
-%2L, pump off while cooling
-fid = fopen('dataex4.txt')
->>>>>>> origin/master
+fid = fopen('data2A_heatoff_pumpon_2.txt')
 data = fscanf(fid, '%f');
 fclose(fid);
 
@@ -26,8 +21,8 @@ c = 5.373169834e-7;
 TEMP = (1./(a + b.*Rlog + c.*(Rlog.^3)))-273.15;
 %TEMP2 = (1./(a + b.*Rlog2 + c.*(Rlog2.^3)))-273.15;
 
-%TEMP=TEMP(20:end,1);
-%time=time(20:end,1);
+TEMP=TEMP(2:end,1);
+time=time(2:end,1);
 time = time-time(1);
 
 %figure, subplot(1,2,1);

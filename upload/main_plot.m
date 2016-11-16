@@ -14,11 +14,13 @@ data2 = fscanf(fid, '%f'); %remove 13 samples in the beginning
 data2 = data2(73:end);
 fclose(fid);
 
-fid = fopen('data6A_heatoff_pumpon_3.txt');
+%fid = fopen('data6A_heatoff_pumpon_3.txt');
+fid = fopen('data6A2_heatoff_pumpon_3.txt');
 data3 = fscanf(fid, '%f');
+data3 = data3(73:end);
 fclose(fid);
 
-fid = fopen('data5A_heaton_pumpon_3.txt'); %remove 12 samples
+fid = fopen('data5A_hpon_and_hpoff_3.txt'); %remove 12 samples
 data4 = fscanf(fid, '%f');
 data4 = data4(37:end);
 fclose(fid);
@@ -111,16 +113,36 @@ Tr5 = (1./(a + b.*Rrlog5 + c.*(Rrlog5.^3)))-273.15;
 Tw6 = (1./(a + b.*Rwlog6 + c.*(Rwlog6.^3)))-273.15;
 Tr6 = (1./(a + b.*Rrlog6 + c.*(Rrlog6.^3)))-273.15;
 
+[~, pos1] = min(abs(85-Tw1));
+[~, pos2] = min(abs(85-Tw2));
+[~, pos3] = min(abs(85-Tw3));
+[~, pos4] = min(abs(85-Tw4));
+[~, pos5] = min(abs(85-Tw5));
+[~, pos6] = min(abs(85-Tw6));
+
 figure, subplot(1,2,1);
-plot(time1, Tw1, '*r');
+plot(time1(pos1:end)-time1(pos1), Tw1(pos1:end), '*r');
 
 hold on
-plot(time2, Tw2, '^r');
-plot(time3, Tw3, '*b');
-plot(time4, Tw4, '^b');
-plot(time5, Tw5, '*k');
-plot(time6, Tw6, '^k');
+plot(time2(pos2:end)-time2(pos2), Tw2(pos2:end), '^r');
+plot(time3(pos3:end)-time3(pos3), Tw3(pos3:end), '*b');
+plot(time4(pos4:end)-time4(pos4), Tw4(pos4:end), '^b');
+plot(time5(pos5:end)-time5(pos5), Tw5(pos5:end), '*k');
+plot(time6(pos6:end)-time6(pos6), Tw6(pos6:end), '^k');
 legend('pump 2l','no pump 2l','pump 3l','no pump 3l','pump 2.5l','no pump 2.5l')
-subplot(1,2,2);
-plot(time1, Tr1, '*r');
-ylim([20,27])
+%subplot(1,2,2);
+%plot(time1, Tr1, '*r');
+%ylim([20,27])
+k = [0.0001621, 0.000104, 0.0001246, 0.00008305, 0.0001337, 0.00009111];
+timex = linspace(0,10000,1000);
+a = 24.3;
+b = 85-a;
+tempx = {[a + b*exp(-k(1)*timex)],[a + b*exp(-k(2)*timex)],[a + b*exp(-k(3)*timex)],[a + b*exp(-k(4)*timex)],[a + b*exp(-k(5)*timex)],[a + b*exp(-k(6)*timex)]};
+plot(timex, tempx{1},'r');
+hold on
+plot(timex, tempx{2},'r');
+plot(timex, tempx{3},'b');
+plot(timex, tempx{4},'b');
+plot(timex, tempx{5},'k');
+plot(timex, tempx{6},'k');
+ylim([45,90]);

@@ -35,6 +35,11 @@ data6 = fscanf(fid, '%f');
 data6 = data6(49:end);
 fclose(fid);
 
+fid = fopen('data9A_heaton_pumpon_2-25.txt');
+data7 = fscanf(fid, '%f');
+data7 = data7(8*3+1:end);
+fclose(fid);
+
 time1 = data1(1:3:length(data1))/1000;
 time1 = time1-time1(1);
 analog11 = data1(2:3:length(data1));
@@ -64,6 +69,11 @@ time6 = data6(1:3:length(data6))/1000;
 time6 = time6 - time6(1);
 analog16 = data6(2:3:length(data6));
 analog26 = data6(3:3:length(data6));
+
+time7 = data7(1:3:length(data7))/1000;
+time7 = time7 - time7(1);
+analog17 = data7(2:3:length(data7));
+analog27 = data7(3:3:length(data7));
 
 Rw1 = (2250600./analog11) - 2200;
 Rwlog1 = log(Rw1);
@@ -95,6 +105,11 @@ Rwlog6 = log(Rw6);
 Rr6 = (2250600./analog26) - 2200;
 Rrlog6 = log(Rr6);
 
+Rw7 = (2250600./analog17) - 2200;
+Rwlog7 = log(Rw7);
+Rr7 = (2250600./analog27) - 2200;
+Rrlog7 = log(Rr7);
+
 Tw1 = (1./(a + b.*Rwlog1 + c.*(Rwlog1.^3)))-273.15;
 Tr1 = (1./(a + b.*Rrlog1 + c.*(Rrlog1.^3)))-273.15;
 
@@ -113,14 +128,20 @@ Tr5 = (1./(a + b.*Rrlog5 + c.*(Rrlog5.^3)))-273.15;
 Tw6 = (1./(a + b.*Rwlog6 + c.*(Rwlog6.^3)))-273.15;
 Tr6 = (1./(a + b.*Rrlog6 + c.*(Rrlog6.^3)))-273.15;
 
-[~, pos1] = min(abs(85-Tw1));
-[~, pos2] = min(abs(85-Tw2));
-[~, pos3] = min(abs(85-Tw3));
-[~, pos4] = min(abs(85-Tw4));
-[~, pos5] = min(abs(85-Tw5));
-[~, pos6] = min(abs(85-Tw6));
+Tw7 = (1./(a + b.*Rwlog7 + c.*(Rwlog7.^3)))-273.15;
+Tr7 = (1./(a + b.*Rrlog7 + c.*(Rrlog7.^3)))-273.15;
 
-figure, subplot(1,2,1);
+limit = 71;
+
+[~, pos1] = min(abs(limit-Tw1));
+[~, pos2] = min(abs(limit-Tw2));
+[~, pos3] = min(abs(limit-Tw3));
+[~, pos4] = min(abs(limit-Tw4));
+[~, pos5] = min(abs(limit-Tw5));
+[~, pos6] = min(abs(limit-Tw6));
+[~, pos7] = min(abs(limit-Tw7));
+
+figure%, subplot(1,2,1);
 plot(time1(pos1:end)-time1(pos1), Tw1(pos1:end), '*r');
 
 hold on
@@ -129,20 +150,23 @@ plot(time3(pos3:end)-time3(pos3), Tw3(pos3:end), '*b');
 plot(time4(pos4:end)-time4(pos4), Tw4(pos4:end), '^b');
 plot(time5(pos5:end)-time5(pos5), Tw5(pos5:end), '*k');
 plot(time6(pos6:end)-time6(pos6), Tw6(pos6:end), '^k');
-legend('pump 2l','no pump 2l','pump 3l','no pump 3l','pump 2.5l','no pump 2.5l')
+plot(time7(pos7:end)-time7(pos7), Tw7(pos7:end), '*m');
+legend('pump 2l','no pump 2l','pump 3l','no pump 3l','pump 2.5l','no pump 2.5l', 'pump 2.25l')
 %subplot(1,2,2);
 %plot(time1, Tr1, '*r');
 %ylim([20,27])
-k = [0.0001621, 0.000104, 0.0001246, 0.00008305, 0.0001337, 0.00009111];
+%k = [0.0001621, 0.000104, 0.0001246, 0.00008305, 0.0001337, 0.00009111];
+k = [0.0001331, 0.000104, 0.0001246, 0.00008305, 0.0001337, 0.00009111];
 timex = linspace(0,10000,1000);
 a = 24.3;
-b = 85-a;
+b = limit-a;
+%b=70;
 tempx = {[a + b*exp(-k(1)*timex)],[a + b*exp(-k(2)*timex)],[a + b*exp(-k(3)*timex)],[a + b*exp(-k(4)*timex)],[a + b*exp(-k(5)*timex)],[a + b*exp(-k(6)*timex)]};
 plot(timex, tempx{1},'r');
 hold on
-plot(timex, tempx{2},'r');
-plot(timex, tempx{3},'b');
-plot(timex, tempx{4},'b');
-plot(timex, tempx{5},'k');
-plot(timex, tempx{6},'k');
+%plot(timex, tempx{2},'r');
+%plot(timex, tempx{3},'b');
+%plot(timex, tempx{4},'b');
+%plot(timex, tempx{5},'k');
+%plot(timex, tempx{6},'k');
 ylim([45,90]);

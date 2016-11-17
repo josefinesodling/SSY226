@@ -194,10 +194,8 @@ limit = 71;
 [~, pos7] = min(abs(limit-Tw7));
 
 figure, subplot(1,2,1);
+title('Cooling down water')
 plot(time1(pos1:end)-time1(pos1), Tw1(pos1:end), '*r');
-xlabel('Time [ms]')
-ylabel('Temp C')
-title('Cooling water down')
 
 hold on
 plot(time2(pos2:end)-time2(pos2), Tw2(pos2:end), '^r');
@@ -224,18 +222,15 @@ hold on
 %plot(timex, tempx{4},'b');
 %plot(timex, tempx{5},'k');
 %plot(timex, tempx{6},'k');
-ylim([40,75]);
+ylim([45,90]);
 
 subplot(1,2,2);
-plot(time1h-time1h(1), Tw1h, 'r*')
-xlabel('Time [ms]')
-ylabel('Temp C')
-title('Heating water')
+plot(Tw1h, 'r*')
 hold on
-plot(time2h-time2h(1),Tw2h, 'r^')
-plot(time3h-time3h(1),Tw3h, 'b*')
-plot(time4h-time4h(1),Tw4h, 'b^')
-plot(time5h-time5h(1),Tw5h, 'k*')
-plot(time6h-time6h(1),Tw6h, 'k^')
-plot(time7h-time7h(1),Tw7h, 'm*')
+plot(Tw2h, 'r^')
+plot(Tw3h, 'b*')
+plot(Tw4h, 'b^')
+plot(Tw5h, 'k*')
+plot(Tw6h, 'k^')
+plot(Tw7h, 'm*')
 legend('2l','2l','3l','3l','2.5l','2.5l', '2.25l')

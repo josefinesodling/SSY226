@@ -2,6 +2,7 @@
 // http://electronics.stackexchange.com/questions/54/saving-arduino-sensor-data-to-a-text-file
 // http://www.thinksrs.com/downloads/programs/Therm%20Calc/NTCCalibrator/NTCcalculator.htm
 
+#include <TimerOne.h>
 #include <LiquidCrystal.h>
 #include <math.h>
 LiquidCrystal lcd(12, 11, 5, 4, 3, 2); // The numbers of the interface pins
@@ -10,9 +11,9 @@ LiquidCrystal lcd(12, 11, 5, 4, 3, 2); // The numbers of the interface pins
 int DEBUG = 0;
 float MINTEMP = 30;
 float MAXTEMP = 80;
-int SAMPLETIME = 10; // 60 seconds
-int DISPLAYTIME = 10;
-int pushState = 0;
+int SAMPLETIME = 10 * 1; //1 second (never smaller than Timer1.init)
+int DISPLAYTIME = 10 * 1; // second (never smaller than Timer1.init)
+volatile int pushState = 0;
 
 // Global variables
 int counter = 0;
@@ -28,24 +29,34 @@ double a = 1.675091827e-3;
 double b = 1.857536553e-4;
 double c = 5.373169834e-7;
 
+volatile float analog0 = 0;
+volatile float analog1 = 0;
+volatile float analog2 = 0;
+volatile int pushOn = 0;
+volatile int has_read = 0;
+
 void setup() {
   // Set up the LCD's number of columns and rows:
   lcd.begin(16, 2);
   Serial.begin(9600);
   pinMode(7, INPUT);
+  Timer1.initialize(100000);
+  Timer1.attachInterrupt(getData);
+}
+
+void getData(void)
+{
+  time = millis();
+  analog0 = analogRead(0);
+  analog1 = analogRead(1);
+  analog2 = analogRead(2);
+  pushOn = digitalRead(7);
+  has_read = 1;
 }
 
 void loop() {
-  time = millis();
-  time_mic = micros();
+  if (has_read == 1){
   double T1; double T2;
-  // --- Read analog values
-  float analog0 = analogRead(0);
-  float analog1 = analogRead(1);
-  float analog2 = analogRead(2);
-
-  // --- Read digital values
-  int pushOn = digitalRead(7);
 
   if (pushOn){
     if ((pushState == 0) && ((millis() - delay_check) > 1000)){
@@ -56,10 +67,12 @@ void loop() {
     else if ((pushState == 1) && ((millis() - delay_check) > 1000)){
       pushState = 2;
       delay_check = millis();
+      lcd.clear();
     }
     else if ((pushState == 2) && ((millis() - delay_check) > 1000)){
       pushState = 1;
       delay_check = millis();
+      lcd.clear();
     }
   }
 
@@ -70,14 +83,15 @@ void loop() {
   int refT_int = round(refT);
   
   // Mean value from SAMPLETIME samples
-  if (counter < DISPLAYTIME) {
-	  analog1Sum += analog1/DISPLAYTIME;
-	  analog2Sum += analog2/DISPLAYTIME;
+  if ((counter+1) < DISPLAYTIME) {
+    noInterrupts();
+	  analog1Sum += analog1/(DISPLAYTIME-1);
+	  analog2Sum += analog2/(DISPLAYTIME-1);
+    interrupts();
 	  counter += 1;
 
   }
   else {
-    
 	  double R1 = (2250600/analog1Sum - 2200);			    // Mean resistance
     T1 = log(R1);
     T1 = 1 /(a + (b + (c * T1 * T1 ))* T1 );
@@ -90,9 +104,11 @@ void loop() {
     analog1Sum = 0;
 	  analog2Sum = 0;
   }
-  if (counter2 < SAMPLETIME) {
-    analog1Sum2 += analog1/SAMPLETIME;
-    analog2Sum2 += analog2/SAMPLETIME;
+  if ((counter2+1) < SAMPLETIME) {
+    noInterrupts();
+    analog1Sum2 += analog1/(SAMPLETIME-1);
+    analog2Sum2 += analog2/(SAMPLETIME-1);
+    interrupts();
     counter2 += 1;
   }
   else {
@@ -106,7 +122,8 @@ void loop() {
   
   // ------------------------------
   // --- Set LCD display strings  
-  
+
+  if (pushState == 1){
   // Line 1 - Reference temperature
   lcd.setCursor(0, 0);
   lcd.print("Ref.temp: ");
@@ -137,12 +154,25 @@ void loop() {
 	  lcd.print("C");
   }
   }
+  else if (pushState = 2){
+    lcd.setCursor(0, 0);
+    lcd.print("A1:");
+    lcd.print(round(analog1));
+    lcd.print("/A2:");
+    lcd.print(round(analog2));
+    lcd.setCursor(0, 1);
+    lcd.print("Samp_t:");
+    lcd.print(0.1*SAMPLETIME);
+    lcd.print("s");
+  }
+  }
   else{
     lcd.setCursor(0, 0);
     lcd.print("Waiting for");
     lcd.setCursor(0, 1);
     lcd.print("pushbutton...");
   }
-  delay(time - millis() + 91);
+  has_read = 0;
+  }
 }
 

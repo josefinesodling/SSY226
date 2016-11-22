@@ -17,6 +17,10 @@ fid = fopen('heating_3L.txt');
 data3 = fscanf(fid, '%f');
 fclose(fid);
 
+fid = fopen('heating_2-25L.txt');
+data4 = fscanf(fid, '%f');
+fclose(fid);
+
 %--------------------
 time1 = data1(1:3:length(data1))/1000;
 analog11 = data1(2:3:length(data1));
@@ -54,11 +58,24 @@ Rrlog3 = log(Rr3);
 Tw3 = (1./(a + b.*Rwlog3 + c.*(Rwlog3.^3)))-273.15;
 Tr3 = (1./(a + b.*Rrlog3 + c.*(Rrlog3.^3)))-273.15;
 %---------------------------------------------------
+time4 = data4(1:3:length(data4))/1000;
+analog14 = data4(2:3:length(data4));
+analog24 = data4(3:3:length(data4));
+
+Rw4 = (2250600./analog14) - 2200;
+Rwlog4 = log(Rw4);
+Rr4 = (2250600./analog24) - 2200;
+Rrlog4 = log(Rr4);
+
+Tw4 = (1./(a + b.*Rwlog4 + c.*(Rwlog4.^3)))-273.15;
+Tr4 = (1./(a + b.*Rrlog4 + c.*(Rrlog4.^3)))-273.15;
+%---------------------------------------------------
 limit = 25;
 
 [~, pos1] = min(abs(limit-Tw1));
 [~, pos2] = min(abs(limit-Tw2));
 [~, pos3] = min(abs(limit-Tw3));
+[~, pos4] = min(abs(limit-Tw4));
 
 figure%, subplot(1,2,1);
 plot(time1(pos1:end)-time1(pos1), Tw1(pos1:end), '*r');
@@ -69,5 +86,6 @@ title('Water heating')
 hold on
 plot(time2(pos2:end)-time2(pos2), Tw2(pos2:end), '*b');
 plot(time3(pos3:end)-time3(pos3), Tw3(pos3:end), '*k');
+plot(time4(pos4+8:end)-time4(pos4+8), Tw4(pos4+8:end), '*m');
 
-legend('2L, max power', '2.5L, max power', '3L, max power')
+legend('2L, max power', '2.5L, max power', '3L, max power', '2.3L, max power')

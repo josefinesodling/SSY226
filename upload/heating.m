@@ -70,4 +70,4 @@ hold on
 plot(time2(pos2:end)-time2(pos2), Tw2(pos2:end), '*b');
 plot(time3(pos3:end)-time3(pos3), Tw3(pos3:end), '*k');
 
-legend('2L', '2.5L', '3L')
+legend('2L, max power', '2.5L, max power', '3L, max power')

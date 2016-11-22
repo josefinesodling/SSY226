@@ -10,8 +10,9 @@ LiquidCrystal lcd(12, 11, 5, 4, 3, 2); // The numbers of the interface pins
 int DEBUG = 0;
 float MINTEMP = 30;
 float MAXTEMP = 80;
-int SAMPLETIME = 600; // 60 seconds
+int SAMPLETIME = 10; // 60 seconds
 int DISPLAYTIME = 10;
+int pushState = 0;
 
 // Global variables
 int counter = 0;
@@ -21,6 +22,7 @@ double analog2Sum = 0;
 double analog1Sum2 = 0;
 double analog2Sum2 = 0;
 unsigned long time;
+unsigned long delay_check = millis();
 double a = 1.675091827e-3;
 double b = 1.857536553e-4;
 double c = 5.373169834e-7;
@@ -29,6 +31,7 @@ void setup() {
   // Set up the LCD's number of columns and rows:
   lcd.begin(16, 2);
   Serial.begin(9600);
+  pinMode(7, INPUT);
 }
 
 void loop() {
@@ -45,6 +48,26 @@ void loop() {
   analog1 = analogRead(1);
   analog2 = analogRead(2);
 
+  // --- Read digital values
+  int pushOn = digitalRead(7);
+
+  if (pushOn){
+    if ((pushState == 0) && ((millis() - delay_check) > 1000)){
+      pushState = 1;
+      delay_check = millis();
+      lcd.clear();
+    }
+    else if ((pushState == 1) && ((millis() - delay_check) > 1000)){
+      pushState = 2;
+      delay_check = millis();
+    }
+    else if ((pushState == 2) && ((millis() - delay_check) > 1000)){
+      pushState = 1;
+      delay_check = millis();
+    }
+  }
+
+  if (pushState > 0){
   // ------------------------------
   // --- Do calculations
   refT = ((MAXTEMP-MINTEMP)/1023)*analog0 + MINTEMP;	// Set ref-temp from potentiometer
@@ -117,7 +140,13 @@ void loop() {
 	  lcd.print((char)223);
 	  lcd.print("C");
   }
-  
+  }
+  else{
+    lcd.setCursor(0, 0);
+    lcd.print("Waiting for");
+    lcd.setCursor(0, 1);
+    lcd.print("pushbutton...");
+  }
   delay(time - millis() + 100);
 }
 

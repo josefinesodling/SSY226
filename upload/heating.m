@@ -21,6 +21,10 @@ fid = fopen('heating_2-25L.txt');
 data4 = fscanf(fid, '%f');
 fclose(fid);
 
+fid = fopen('heating_2-75L.txt');
+data5 = fscanf(fid, '%f');
+fclose(fid);
+
 %--------------------
 time1 = data1(1:3:length(data1))/1000;
 analog11 = data1(2:3:length(data1));
@@ -70,22 +74,38 @@ Rrlog4 = log(Rr4);
 Tw4 = (1./(a + b.*Rwlog4 + c.*(Rwlog4.^3)))-273.15;
 Tr4 = (1./(a + b.*Rrlog4 + c.*(Rrlog4.^3)))-273.15;
 %---------------------------------------------------
+time5 = data5(1:3:length(data5))/1000;
+analog15 = data5(2:3:length(data5));
+analog25 = data5(3:3:length(data5));
+
+Rw5 = (2250600./analog15) - 2200;
+Rwlog5 = log(Rw5);
+Rr5 = (2250600./analog25) - 2200;
+Rrlog5 = log(Rr5);
+
+Tw5 = (1./(a + b.*Rwlog5 + c.*(Rwlog5.^3)))-273.15;
+Tr5 = (1./(a + b.*Rrlog5 + c.*(Rrlog5.^3)))-273.15;
+%---------------------------------------------------
 limit = 25;
 
 [~, pos1] = min(abs(limit-Tw1));
 [~, pos2] = min(abs(limit-Tw2));
 [~, pos3] = min(abs(limit-Tw3));
 [~, pos4] = min(abs(limit-Tw4));
+[~, pos5] = min(abs(limit-Tw5));
+
+sr = 4;
 
 figure%, subplot(1,2,1);
-plot(time1(pos1:end)-time1(pos1), Tw1(pos1:end), '*r');
+plot(downsample(time1(pos1:end)-time1(pos1), sr), downsample(Tw1(pos1:end), sr), ':r', 'LineWidth', 2);
 xlabel('Time [s]')
 ylabel('Temp C')
 title('Water heating')
 
 hold on
-plot(time2(pos2:end)-time2(pos2), Tw2(pos2:end), '*b');
-plot(time3(pos3:end)-time3(pos3), Tw3(pos3:end), '*k');
-plot(time4(pos4+8:end)-time4(pos4+8), Tw4(pos4+8:end), '*m');
+plot(downsample(time2(pos2:end)-time2(pos2), sr), downsample(Tw2(pos2:end), sr), ':b', 'LineWidth', 2);
+plot(downsample(time3(pos3:end)-time3(pos3), sr), downsample(Tw3(pos3:end), sr), ':k', 'LineWidth', 2);
+plot(downsample(time4(pos4+8:end)-time4(pos4+8), sr), downsample(Tw4(pos4+8:end), sr), ':m', 'LineWidth', 2);
+plot(downsample(time5(pos5+8:end)-time5(pos5+8), sr+2), downsample(Tw5(pos5+8:end), sr+2), ':', 'Color', [0.9412 0.4706 0], 'LineWidth', 2);
 
-legend('2L, max power', '2.5L, max power', '3L, max power', '2.3L, max power')
+legend('2L, max power', '2.5L, max power', '3L, max power', '2.3L, max power', '2.8 L, max power', 'Location','southeast')

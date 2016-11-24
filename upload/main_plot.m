@@ -183,7 +183,7 @@ Tw7 = Tw7(11:end);
 time7 = time7(11:end);
 % -----------
 
-limit = 71;
+limit = 69;
 
 [~, pos1] = min(abs(limit-Tw1));
 [~, pos2] = min(abs(limit-Tw2));
@@ -193,20 +193,21 @@ limit = 71;
 [~, pos6] = min(abs(limit-Tw6));
 [~, pos7] = min(abs(limit-Tw7));
 
-figure, subplot(1,2,1);
-plot(time1(pos1:end)-time1(pos1), Tw1(pos1:end), '*r');
-xlabel('Time [ms]')
-ylabel('Temp C')
+figure%, subplot(1,2,1);
+plot(time1(pos1:end)-time1(pos1), Tw1(pos1:end), '*r', 'MarkerSize', 2);
+xlabel('Time [s]')
+s = sprintf('Temperature [%cC]', char(176));
+ylabel(s)
 title('Cooling water down')
 
 hold on
-plot(time2(pos2:end)-time2(pos2), Tw2(pos2:end), '^r');
-plot(time3(pos3:end)-time3(pos3), Tw3(pos3:end), '*b');
-plot(time4(pos4:end)-time4(pos4), Tw4(pos4:end), '^b');
-plot(time5(pos5:end)-time5(pos5), Tw5(pos5:end), '*k');
-plot(time6(pos6:end)-time6(pos6), Tw6(pos6:end), '^k');
-plot(time7(pos7:end)-time7(pos7), Tw7(pos7:end), '*m');
-legend('pump 2l','no pump 2l','pump 3l','no pump 3l','pump 2.5l','no pump 2.5l', 'pump 2.25l')
+plot(time2(pos2:end)-time2(pos2), Tw2(pos2:end), ':r', 'LineWidth', 2);
+plot(time3(pos3:end)-time3(pos3), Tw3(pos3:end), '*b', 'MarkerSize', 2);
+plot(time4(pos4:end)-time4(pos4), Tw4(pos4:end), ':b', 'LineWidth', 2);
+plot(time5(pos5:end)-time5(pos5), Tw5(pos5:end), '*k', 'MarkerSize', 2);
+plot(time6(pos6:end)-time6(pos6), Tw6(pos6:end), ':k', 'LineWidth', 2);
+plot(time7(pos7:end)-time7(pos7), Tw7(pos7:end), '*m', 'MarkerSize', 2);
+legend('pump 2L','no pump 2L','pump 3L','no pump 3L','pump 2.5L','no pump 2.5L', 'pump 2.25L')
 %subplot(1,2,2);
 %plot(time1, Tr1, '*r');
 %ylim([20,27])
@@ -216,26 +217,26 @@ timex = linspace(0,10000,1000);
 a = 24.3;
 b = limit-a;
 %b=70;
-tempx = {[a + b*exp(-k(1)*timex)],[a + b*exp(-k(2)*timex)],[a + b*exp(-k(3)*timex)],[a + b*exp(-k(4)*timex)],[a + b*exp(-k(5)*timex)],[a + b*exp(-k(6)*timex)]};
-plot(timex, tempx{1},'r');
-hold on
+%tempx = {[a + b*exp(-k(1)*timex)],[a + b*exp(-k(2)*timex)],[a + b*exp(-k(3)*timex)],[a + b*exp(-k(4)*timex)],[a + b*exp(-k(5)*timex)],[a + b*exp(-k(6)*timex)]};
+%plot(timex, tempx{1},'r');
+%hold on
 %plot(timex, tempx{2},'r');
 %plot(timex, tempx{3},'b');
 %plot(timex, tempx{4},'b');
 %plot(timex, tempx{5},'k');
 %plot(timex, tempx{6},'k');
-ylim([40,75]);
+ylim([55,70]);
 
-subplot(1,2,2);
-plot(time1h-time1h(1), Tw1h, 'r*')
-xlabel('Time [ms]')
-ylabel('Temp C')
-title('Heating water')
-hold on
-plot(time2h-time2h(1),Tw2h, 'r^')
-plot(time3h-time3h(1),Tw3h, 'b*')
-plot(time4h-time4h(1),Tw4h, 'b^')
-plot(time5h-time5h(1),Tw5h, 'k*')
-plot(time6h-time6h(1),Tw6h, 'k^')
-plot(time7h-time7h(1),Tw7h, 'm*')
-legend('2l','2l','3l','3l','2.5l','2.5l', '2.25l')
+%subplot(1,2,2);
+%plot(time1h-time1h(1), Tw1h, 'r*')
+%xlabel('Time [ms]')
+%ylabel('Temp C')
+%title('Heating water')
+%hold on
+%plot(time2h-time2h(1),Tw2h, 'r^')
+%plot(time3h-time3h(1),Tw3h, 'b*')
+%plot(time4h-time4h(1),Tw4h, 'b^')
+%plot(time5h-time5h(1),Tw5h, 'k*')
+%plot(time6h-time6h(1),Tw6h, 'k^')
+%plot(time7h-time7h(1),Tw7h, 'm*')
+%legend('2l','2l','3l','3l','2.5l','2.5l', '2.25l')

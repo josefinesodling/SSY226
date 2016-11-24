@@ -10,13 +10,13 @@ v = F(12)/A_inner;                          % velocity inside hose [m/s]
 rho = 1000;                             % [kg/m^3]
 L = 1.5;                                % [m] length of hose
 eta = 0.87*0.94;                        % efficiensy
-%viskositet
-visk = [1792 1519 1308 1005 801 656 549 469 406 357 317 284].*1000000;
+%viskositet [m/s^2]
+visk = [1.792 1.519 1.308 1.005 .801 .656 .549 .469 .406 .357 .317 .284]./1000000;
 temp = [0 5 10 20 30 40 50 60 70 80 90 100];
 
 for i=1:length(temp)
-    % Viskositet for water
-    est_visk(i) = (-2.6*10^3)*temp(i)^3 + (5.8*10^5)*temp(i)^2 - (4.7*10^7)*temp(i) + (1.8*10^9);
+    % Viskositet for water [m/s^2]
+    est_visk(i) = (-2.6*10^-12)*temp(i)^3 + (5.8*10^-10)*temp(i)^2 - (4.7*10^-8)*temp(i) + (1.8*10^-6);
     % Reynholds tal
     Re(i) = (v*d) / est_visk(i);     % reinholds tal for each temp ((velocity * innerdiameter) / viskositet)
     % lambda
@@ -46,5 +46,5 @@ subplot(2,1,2)
 % hold on
 % end
 plot(F,Power)
-legend('eff pump')
-title('Calculated pressurediff, dep on temp, max-effekt')
+legend('Power pump')
+title('Calculated power, dep on temp, max-effekt')

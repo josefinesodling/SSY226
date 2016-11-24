@@ -4,7 +4,7 @@
 k = 0.1;        % From measurements cooldowncoeff
 m = 2;          % mass
 c = 4.18;       % water heat capacity
-Pc = 1200;        % constant effect, [Watt]
+Pc = 35;        % constant effect, [Watt]
 
 %A = [0,1,0;0,0,1;0,k^2, 2*k];
 %b = [0;-(2*k)/(m*c);-(3*k^2)/(m*c)];
@@ -14,10 +14,9 @@ Pc = 1200;        % constant effect, [Watt]
 A = [-k];
 B = [Pc/m*c];
 C = [1];
-sys = ss(A,B,C,0,0);
-impulse(sys)
+sys = ss(A,B,C,0);
+step(sys)
 hold on;
-%% 
 
 
 

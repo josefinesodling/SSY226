@@ -1,4 +1,4 @@
-% Model - Plant
+impulse)s3=% Model - Plant
 
 % Constant input
 k = 0.1;        % From measurements cooldowncoeff
@@ -19,7 +19,11 @@ impulse(sys)
 hold on;
 %% 
 
+sys2 = ss(A2,B2,[1,0],0);
 
+%q: rate to heat up
+q = 0.003;
+sys3 = tf([1,0],m*c*[1,q+k,q*k]);
 
 
 %bodeplot(sys)

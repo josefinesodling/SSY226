@@ -183,7 +183,7 @@ Tw7 = Tw7(11:end);
 time7 = time7(11:end);
 % -----------
 
-limit = 65;
+limit = 69;
 
 [~, pos1] = min(abs(limit-Tw1));
 [~, pos2] = min(abs(limit-Tw2));
@@ -232,19 +232,19 @@ timex = linspace(0,10000,1000);
 a = 24.3;
 b = limit-a;
 %b=70;
-%k(1) = k(1)*1.1;
+%k(1) = k(1)*1.07;
 %k(2) = k(2)*0.89;
-%k(3) = k(2)*0.98;
-%k(4) = k(4)*0.87;
-%k(5) = k(5)*0.83;
-%k(6) = k(6)*0.87;
+%k(3) = k(2)*0.95;
+%k(4) = k(4)*0.84;
+%k(5) = k(5)*0.80;
+%k(6) = k(6)*0.84;
 k(1) = k_exp(2,6);
 k(2) = k_exp(2,0);
 k(3) = k_exp(3,6);
 k(4) = k_exp(3,0);
 k(5) = k_exp(2.5,6);
 k(6) = k_exp(2.5,0);
-k(7) = k_exp(2.25,6);
+k(7) = k_exp(2.3,6);
 tempx = {[a + b*exp(-k(1)*timex)],[a + b*exp(-k(2)*timex)],[a + b*exp(-k(3)*timex)],[a + b*exp(-k(4)*timex)],[a + b*exp(-k(5)*timex)],[a + b*exp(-k(6)*timex)],[a + b*exp(-k(7)*timex)]};
 plot(timex, tempx{1},'r');
 %hold on
@@ -255,6 +255,44 @@ plot(timex, tempx{5},'k');
 plot(timex, tempx{6},'k');
 plot(timex, tempx{7},'m');
 ylim([55,70]);
+
+kon = exp(-k(1));
+
+Tx(1) = a + abs((Tw1x(1) - a))*kon;
+
+Txx1(1) = Tw1x(1);
+Txx2(1) = Tw2x(1);
+Txx3(1) = Tw3x(1);
+Txx4(1) = Tw4x(1);
+Txx5(1) = Tw5x(1);
+Txx6(1) = Tw6x(1);
+Txx7(1) = Tw7x(1);
+
+k11 = 0.0019*0.15;
+k22 = 0.0019*0.097;
+k24 = 0.0019*0.112;
+k26 = 0.0019*0.103;
+
+for i = 1:5000-1
+   %Tx(1+i) = a + abs((Tx(i) - a))*kon;
+   Txx1(1+i) = Txx1(i) - ((Txx1(i)-a)*k11)/2;
+   Txx3(1+i) = Txx3(i) - ((Txx3(i)-a)*k11)/3;
+   Txx5(1+i) = Txx5(i) - ((Txx5(i)-a)*k11)/2.5;
+   
+   Txx2(1+i) = Txx2(i) - ((Txx2(i)-a)*k22)/2;
+   Txx4(1+i) = Txx4(i) - ((Txx4(i)-a)*k24)/3;
+   Txx6(1+i) = Txx6(i) - ((Txx6(i)-a)*k26)/2.5;
+end
+
+%plot(linspace(1,5000,5000), Tx, '*g');
+%plot(linspace(1,5000,5000), Txx1, '*r');
+plot(linspace(1,5000,5000), Txx1, '*r', 'MarkerSize', 2);
+plot(linspace(1,5000,5000), Txx3, '*b', 'MarkerSize', 2);
+plot(linspace(1,5000,5000), Txx5, '*k', 'MarkerSize', 2);
+
+plot(linspace(1,5000,5000), Txx2, '^r', 'MarkerSize', 2);
+plot(linspace(1,5000,5000), Txx4, '^b', 'MarkerSize', 2);
+plot(linspace(1,5000,5000), Txx6, '^k', 'MarkerSize', 2);
 
 %subplot(1,2,2);
 %plot(time1h-time1h(1), Tw1h, 'r*')
@@ -278,9 +316,12 @@ k_p = [k(1), k(3), k(5)];
 k_np = [k(2), k(4), k(6)];
 mass = [2, 3, 2.5];
 k_dif = [k(2) - k(1), k(4) - k(3), k(6) - k(5)];
-flowrate = 3;
+flowrate = 0;
 
 kk = (1.256e-5.*mass.^2 - 0.00008313.*mass + 0.0002086) + flowrate*(1.77e-5.*mass.^2 - 0.0001243.*mass + 0.0002314)/6;
+kk = (1.85e-5.*mass.^2 - 0.0001154.*mass + 0.0002494) + flowrate*(1.434e-5.*mass.^2 - 0.0001034.*mass + 0.0001993)/6;
+
+
 
 figure
 plot(mass, k_np, '*b');

@@ -105,7 +105,7 @@ Tw3x = Tw3(pos3:end);
 Tw4x = Tw4(pos4:end);
 Tw5x = Tw5(pos5:end);
 
-sr = 4;
+sr = 1; %4
 
 figure%, subplot(1,2,1);
 plot(downsample(time1x, sr), downsample(Tw1x, sr), ':r', 'LineWidth', 2);
@@ -120,3 +120,31 @@ plot(downsample(time4x, sr), downsample(Tw4x, sr), ':m', 'LineWidth', 2);
 plot(downsample(time5x, sr+2), downsample(Tw5x, sr+2), ':', 'Color', [0.9412 0.4706 0], 'LineWidth', 2);
 
 legend('2L, max power', '2.5L, max power', '3L, max power', '2.3L, max power', '2.8 L, max power', 'Location','southeast')
+
+k(1) = k_exp(2,6);
+k(2) = k_exp(2,0);
+k(3) = k_exp(3,6);
+k(4) = k_exp(3,0);
+k(5) = k_exp(2.5,6);
+k(6) = k_exp(2.5,0);
+k(7) = k_exp(2.3,6);
+T_r = 24.3;
+
+Txx1(1) = Tw1x(1);
+a = 24.3;
+kon = exp(-k(1));
+Tx(1) = a + abs(Tw1x(1) - a)*kon;
+Txx2(1) = Tw2x(1);
+Txx3(1) = Tw3x(1);
+for i = 1:600-1
+   Txx1(1+i) = Txx1(i) + ((1218/(4180)) -(Txx1(i)-T_r)*0.0019)/2;
+   %Tx(1+i) = Tx(i) + ((1218/(4180)))/2;
+   %Tx(1+i) = T_r + abs(Tx(i+1) - T_r)*kon;
+   Txx2(1+i) = Txx2(i) + ((1218/(4180)) -(Txx2(i)-T_r)*0.0019)/2.5;
+   Txx3(1+i) = Txx3(i) + ((1218/(4180)) -(Txx3(i)-T_r)*0.0019)/3;
+   %Txx(1+i) = T_r - (Txx(i) - T_r)*exp(-k(1));
+end
+
+plot(linspace(1,600,600), Txx1, '.g');
+plot(linspace(1,600,600), Txx2, '.k');
+plot(linspace(1,600,600), Txx3, '.b');

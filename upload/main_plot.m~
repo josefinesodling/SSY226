@@ -183,7 +183,7 @@ Tw7 = Tw7(11:end);
 time7 = time7(11:end);
 % -----------
 
-limit = 65;
+limit = 69;
 
 [~, pos1] = min(abs(limit-Tw1));
 [~, pos2] = min(abs(limit-Tw2));
@@ -232,20 +232,13 @@ timex = linspace(0,10000,1000);
 a = 24.3;
 b = limit-a;
 %b=70;
-%k(1) = k(1)*1.1;
-%k(2) = k(2)*0.89;
-%k(3) = k(2)*0.98;
-%k(4) = k(4)*0.87;
-%k(5) = k(5)*0.83;
-%k(6) = k(6)*0.87;
-k(1) = k_exp(2,6);
-k(2) = k_exp(2,0);
-k(3) = k_exp(3,6);
-k(4) = k_exp(3,0);
-k(5) = k_exp(2.5,6);
-k(6) = k_exp(2.5,0);
-k(7) = k_exp(2.25,6);
-tempx = {[a + b*exp(-k(1)*timex)],[a + b*exp(-k(2)*timex)],[a + b*exp(-k(3)*timex)],[a + b*exp(-k(4)*timex)],[a + b*exp(-k(5)*timex)],[a + b*exp(-k(6)*timex)],[a + b*exp(-k(7)*timex)]};
+k(1) = k(1)*1.1;
+k(2) = k(2)*0.89;
+k(3) = k(2)*0.98;
+k(4) = k(4)*0.87;
+k(5) = k(5)*0.83;
+k(6) = k(6)*0.87;
+tempx = {[a + b*exp(-k(1)*timex)],[a + b*exp(-k(2)*timex)],[a + b*exp(-k(3)*timex)],[a + b*exp(-k(4)*timex)],[a + b*exp(-k(5)*timex)],[a + b*exp(-k(6)*timex)]};
 plot(timex, tempx{1},'r');
 %hold on
 plot(timex, tempx{2},'r');
@@ -253,7 +246,6 @@ plot(timex, tempx{3},'b');
 plot(timex, tempx{4},'b');
 plot(timex, tempx{5},'k');
 plot(timex, tempx{6},'k');
-plot(timex, tempx{7},'m');
 ylim([55,70]);
 
 %subplot(1,2,2);
@@ -270,17 +262,17 @@ ylim([55,70]);
 %plot(time7h-time7h(1),Tw7h, 'm*')
 %legend('2l','2l','3l','3l','2.5l','2.5l', '2.25l')
 
-%time1x(sum(Tw1x > 65))/time2x(sum(Tw2x > 65));
-%time3x(sum(Tw3x > 65))/time4x(sum(Tw4x > 65));
-%time5x(sum(Tw5x > 65))/time6x(sum(Tw6x > 65));
+time1x(sum(Tw1x > 65))/time2x(sum(Tw2x > 65));
+time3x(sum(Tw3x > 65))/time4x(sum(Tw4x > 65));
+time5x(sum(Tw5x > 65))/time6x(sum(Tw6x > 65));
 
 k_p = [k(1), k(3), k(5)];
 k_np = [k(2), k(4), k(6)];
 mass = [2, 3, 2.5];
 k_dif = [k(2) - k(1), k(4) - k(3), k(6) - k(5)];
-flowrate = 3;
+flowrate = 0;
 
-kk = (1.256e-5.*mass.^2 - 0.00008313.*mass + 0.0002086) + flowrate*(1.77e-5.*mass.^2 - 0.0001243.*mass + 0.0002314)/6;
+kk = (1.256e-5.*mass.^2 - 0.00008313.*mass ) - flowrate*(1.77e-5.*mass.^2 - 0.0001243.*mass + 0.0002314)/6;
 
 figure
 plot(mass, k_np, '*b');
@@ -288,4 +280,4 @@ hold on
 plot(mass, k_p, '*m');
 %plot(mass, k_dif, 'r*')
 plot(mass, kk, 'g*');
-legend('No pump', 'Pump', 'Data fit')
+legend('Pump', 'No pump', 'Data fit')

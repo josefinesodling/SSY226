@@ -43,5 +43,5 @@ plot(QAll)
 hold on
 Tj = (1.3236*TEMP - 0.6659*TEMP2 - QAll)/0.6577;
 plot(TEMP)
+legend('',')
 plot(Tj)
-legend('Qtot','TW','Tj')

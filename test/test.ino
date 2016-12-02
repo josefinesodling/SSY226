@@ -9,7 +9,7 @@ LiquidCrystal lcd(12, 11, 5, 4, 3, 2); // The numbers of the interface pins
 
 // Constants
 float MINTEMP = 30, MAXTEMP = 80;
-int SAMPLETIME = 10 * 1; //1 second (never smaller than frequency of Timer1.init)
+int SAMPLETIME = 10 * 10; //1 second (never smaller than frequency of Timer1.init)
 int DISPLAYTIME = 10 * 1; //1 second (never smaller than frequency of Timer1.init)
 
 // Global variables
@@ -33,6 +33,7 @@ void setup() {
   Serial.begin(9600);
   pinMode(7, INPUT);   // Pushbutton pin
   pinMode(6, OUTPUT);  // LED diode pin
+  pinMode(8, OUTPUT);  // SSR heater pin
   // Set up interrupts
   Timer1.initialize(100000); // Do not change (10 HZ)
   Timer1.attachInterrupt(getData); // Run getData with 10 HZ
@@ -51,9 +52,11 @@ void getData(void)
     counter_out += 1;
     if (set_out >= counter_out){
       digitalWrite(6, HIGH);
+      digitalWrite(8, HIGH);
     }
     else{
       digitalWrite(6, LOW);
+      digitalWrite(8, LOW);
     }
     //When 10 seconds has passed, get new set_out value from the controller
     if (counter_out == 100){

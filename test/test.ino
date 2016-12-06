@@ -8,7 +8,7 @@
 LiquidCrystal lcd(12, 11, 5, 4, 3, 2); // The numbers of the interface pins
 
 // Constants
-float MINTEMP = 30, MAXTEMP = 80;
+float MINTEMP = 40, MAXTEMP = 90;
 int SAMPLETIME = 10 * 10; //1 second (never smaller than frequency of Timer1.init)
 int DISPLAYTIME = 10 * 1; //1 second (never smaller than frequency of Timer1.init)
 
@@ -20,13 +20,22 @@ double a = 1.675091827e-3;
 double b = 1.857536553e-4;
 double c = 5.373169834e-7;
 
+double Kp = 20.0;
+double Ki = 0.01;
+double Kd = 0.00;
+double P = 0.0;
+double I = 0.0;
+double D = 0.0;
+double error = 0;
+double error_prior = 0;
+
 // Global shared variables
 volatile float analog0 = 0, analog1 = 0, analog2 = 0, analog3 = 0, pushOn = 0, has_read = 0;
 volatile int pushState = 0;
 
 // Variables for the control of the Solid State Relay
 int counter_out = 0, set_out = 0;
-volatile int output_rate = 25; //(0 - 100%)
+volatile int output_rate = 0; //(0 - 100%)
 
 void setup() {
   lcd.begin(16, 2);    // Set up the LCD display
@@ -97,9 +106,9 @@ void loop() {
       double T1, T2, T3;
       //----------------------------------------------------------------------
       // Set ref-temp from potentiometer -------------------------------------
-      float refT = ((MAXTEMP-MINTEMP)/1023)*analog0 + MINTEMP;
+      double refT = ((MAXTEMP-MINTEMP)/1023)*analog0 + MINTEMP;
       int refT_int = round(refT);
-      output_rate = round((refT_int-30)*2);
+      //output_rate = round((refT_int-30)*2);
 
       if (counter3 > 4){
         counter3 = 0;
@@ -152,6 +161,30 @@ void loop() {
         Serial.println(analog1Sum2);
         Serial.println(analog2Sum2);
         Serial.println(analog3Sum2);
+
+        //Calculate control output
+        double R1 = (2250600/analog1Sum2 - 2200);          // Mean resistance
+        T1 = log(R1);
+        T1 = 1 /(a + (b + (c * T1 * T1 ))* T1 );
+        T1 -= 273.15;
+        
+        error = refT_int - T1;
+        P = error;
+        I += error * SAMPLETIME*0.1;
+        //D = ((error – error_prior)/(SAMPLETIME*0.1));
+        output_rate = round(Kp*P + Ki*I); // + Kd*D;
+
+        if (output_rate > 100){
+          output_rate = 100;
+          }
+        else if ((output_rate < 0) || (error < -0.1)){
+          output_rate = 0;
+          }
+
+        Serial.println(refT_int);
+        Serial.println(output_rate);
+
+        error_prior = error;
         counter2 = 0, analog1Sum2 = 0, analog2Sum2 = 0, analog3Sum2 = 0;
       }
       

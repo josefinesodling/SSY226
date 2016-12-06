@@ -48,3 +48,19 @@ subplot(2,1,2)
 plot(F,Power)
 legend('Power pump')
 title('Calculated power, dep on temp, max-effekt')
+
+%% for a read-file
+
+QAll = (TEMP-TEMP2)*0.4430;
+plot(QAll)
+hold on
+Tj = (1.3236*TEMP - 0.6659*TEMP2 - QAll)/0.6577;
+plot(TEMP)
+plot(Tj)
+legend('Qtot','TW','Tj')
+
+%% Energy put into the system; Accumulation energy
+% Qacc = QElem + QPump - QJacket - QMeat
+dTEMP=(1/8362).*(0.9E-4+0.9E0.*PPump(t)+(-0.443E0).*((-297)+TW(t))+( ...
+  -0.348734E-1).*TW(t)+(-0.651675E1).*(TW(t)+(-0.147514E1).*(( ...
+  -0.191773E3)+(-0.943E0).*((-297)+TW(t))+0.13236E1.*TW(t))));

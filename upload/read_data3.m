@@ -35,13 +35,3 @@ ylim([20,27])
 figure, plot(time, TEMP, '*r');
 axis([7700 8000 50 60])
 hold on
-
-%%
-
-QAll = (TEMP-TEMP2)*0.4430;
-plot(QAll)
-hold on
-Tj = (1.3236*TEMP - 0.6659*TEMP2 - QAll)/0.6577;
-plot(TEMP)
-plot(Tj)
-legend('Qtot','TW','Tj')

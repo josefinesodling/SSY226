@@ -44,3 +44,16 @@ plot(time1, Tr1, ':b', 'LineWidth', 2);
 plot(time1, Tj1, ':m', 'LineWidth', 2);
 
 legend('Water', 'Room', 'Jacket', 'Location', 'NorthWest');
+
+%%
+
+QAll = (Tw1-Tr1)*0.9430;%0.4430
+plot(QAll)
+hold on
+Tjack_calc = (1.3236*Tw1 - 0.6457*Tr1 - QAll)/0.6779;
+plot(Tw1)
+plot(Tr1)
+plot(Tjack_calc)
+plot(Tj1)
+legend('Qtot','Tw','Troom','TJackCalc','TJackReal')
+

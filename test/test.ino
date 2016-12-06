@@ -20,8 +20,8 @@ double a = 1.675091827e-3;
 double b = 1.857536553e-4;
 double c = 5.373169834e-7;
 
-double Kp = 20.0;
-double Ki = 0.01;
+double Kp = 25.0;
+double Ki = 0.005;
 double Kd = 0.00;
 double P = 0.0;
 double I = 0.0;
@@ -167,6 +167,14 @@ void loop() {
         T1 = log(R1);
         T1 = 1 /(a + (b + (c * T1 * T1 ))* T1 );
         T1 -= 273.15;
+
+        Kp = 0.2*(refT_int-T2) + 16.8;
+        if (Kp < 20){
+          Kp = 20;
+        }
+        else if (Kp > 30){
+          Kp = 30;
+        }
         
         error = refT_int - T1;
         P = error;
@@ -177,7 +185,7 @@ void loop() {
         if (output_rate > 100){
           output_rate = 100;
           }
-        else if ((output_rate < 0) || (error < -0.1)){
+        else if ((output_rate < 0) || (error < -0.05)){
           output_rate = 0;
           }
 
@@ -232,6 +240,9 @@ void loop() {
         lcd.print("W|");
         lcd.print(set_out);
         lcd.print("%");
+        lcd.setCursor(0, 1);
+        lcd.print("Kp:");
+        lcd.print(Kp);
       }
     }
     else{

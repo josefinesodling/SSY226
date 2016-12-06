@@ -5,7 +5,7 @@ a = 1.675091827e-3;
 b = 1.857536553e-4;
 c = 5.373169834e-7;
 
-fid = fopen('heating_PID_3L.txt');
+fid = fopen('heating_PID_3L_ext.txt');
 data1 = fscanf(fid, '%f');
 fclose(fid);
 

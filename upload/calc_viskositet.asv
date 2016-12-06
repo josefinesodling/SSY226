@@ -122,5 +122,5 @@ B = [0.00010763]
 
 sys=ss(A,B,1,0)
 figure(2)
-bode(sys)
+plot(dTEMP)
 

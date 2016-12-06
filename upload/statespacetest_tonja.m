@@ -5,7 +5,7 @@ m = 2;          % mass
 c = 4.18;       % water heat capacity
 Pc = 1200;        % constant effect, [Watt]
 %k = 0.1;        % From measurements cooldowncoeff
-k = k_exp(m,0);
+k = k_exp(m,6);
 
 %A = [0,1,0;0,0,1;0,k^2, 2*k];
 %b = [0;-(2*k)/(m*c);-(3*k^2)/(m*c)];
@@ -16,19 +16,31 @@ A = [-k];
 B = [Pc/(m*c)];
 C = [1];
 sys = ss(A,B,C,0);
+
+%closed loop system:
+%Kt = 0.001;
+%Kp = 30;
+Kt=0.01;
+Kp=12;
+wholesys=tf([Pc,0],[m*c,k*m*c+Pc*Kp,Pc*Kt]);
+% ^this is stable regarding the nyquist criterion (i think) -> has no
+% positive poles!
+
+
+
 %impulse(sys)
 %hold on;
 %% 
-
-A2 = [-k -Pc/(m*c); 0 0];
-B2 = [2/(m*c); 0];
-C2 = [1,0];
-
-sys2 = ss(A2,B2,C2,0);
-
-%q: rate to heat up
-q = 0.003;
-sys3 = tf([1,0],m*c*[1,q+k,q*k]);
+% 
+% A2 = [-k -Pc/(m*c); 0 0];
+% B2 = [2/(m*c); 0];
+% C2 = [1,0];
+% 
+% sys2 = ss(A2,B2,C2,0);
+% 
+% %q: rate to heat up
+% q = 0.003;
+% sys3 = tf([1,0],m*c*[1,q+k,q*k]);
 
 %bodeplot(sys3)
 %nyquist(sys)

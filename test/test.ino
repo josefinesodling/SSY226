@@ -14,14 +14,15 @@ int DISPLAYTIME = 10 * 1; //1 second (never smaller than frequency of Timer1.ini
 
 // Global variables
 int counter = 0, counter2 = 0, counter3 = 0;
+int experiment = 0;
 double analog1Sum = 0, analog2Sum = 0, analog1Sum2 = 0, analog2Sum2 = 0, analog3Sum = 0, analog3Sum2;
 unsigned long time = millis(), delay_check = millis();
 double a = 1.675091827e-3;
 double b = 1.857536553e-4;
 double c = 5.373169834e-7;
 
-double Kp = 25.0;
-double Ki = 0.005;
+double Kp = 30.0;
+double Ki = 1.0;
 double Kd = 0.00;
 double P = 0.0;
 double I = 0.0;
@@ -32,6 +33,7 @@ double error_prior = 0;
 // Global shared variables
 volatile float analog0 = 0, analog1 = 0, analog2 = 0, analog3 = 0, pushOn = 0, has_read = 0;
 volatile int pushState = 0;
+volatile int counter10 = 0;
 
 // Variables for the control of the Solid State Relay
 int counter_out = 0, set_out = 0;
@@ -70,6 +72,7 @@ void getData(void)
     //When 10 seconds has passed, get new set_out value from the controller
     if (counter_out == 100){
       counter_out = 0;
+      counter10 += 10;
       set_out = output_rate;
       if (pushState > 2){
         lcd.clear();
@@ -108,6 +111,30 @@ void loop() {
       // Set ref-temp from potentiometer -------------------------------------
       double refT = ((MAXTEMP-MINTEMP)/1023)*analog0 + MINTEMP;
       int refT_int = round(refT);
+
+      if (experiment){
+
+      if (counter10 < 400){
+        refT_int = 50;
+        }
+      else if ((counter10 >= 400) && (counter10 < 700)){
+        refT_int = 60;
+        }
+      else if ((counter10 >= 700) && (counter10 < 900)){
+        refT_int = 70;
+        }
+      else if ((counter10 >= 900) && (counter10 < 1300)){
+        refT_int = 90;
+        }
+      else if ((counter10 >= 1300) && (counter10 < 2000)){
+        refT_int = 85;
+        }
+      else{
+        refT_int = 90;
+        }
+      }
+
+      
       //output_rate = round((refT_int-30)*2);
 
       if (counter3 > 4){
@@ -167,18 +194,17 @@ void loop() {
         T1 = log(R1);
         T1 = 1 /(a + (b + (c * T1 * T1 ))* T1 );
         T1 -= 273.15;
-
-        Kp = 0.2*(refT_int-T2) + 16.8;
-        if (Kp < 20){
-          Kp = 20;
-        }
-        else if (Kp > 30){
-          Kp = 30;
-        }
         
         error = refT_int - T1;
         P = error;
-        I += error * SAMPLETIME*0.1;
+        
+        if ((error < 1) && (error > 0)){
+          I += error * SAMPLETIME*0.1;
+        }
+        else{
+          I = 0;
+        }
+        
         //D = ((error – error_prior)/(SAMPLETIME*0.1));
         output_rate = round(Kp*P + Ki*I); // + Kd*D;
 

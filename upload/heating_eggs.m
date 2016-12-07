@@ -34,21 +34,36 @@ Tj1 = (1./(a + b.*Rjlog1 + c.*(Rjlog1.^3)))-273.15;
 
 %time1x = time1(pos1:end)-time1(pos1);
 
+time1 = time1(40:end);
+Tw1 = Tw1(40:end);
+refTemp = refTemp(40:end);
+power = power(40:end);
 time1 = time1 - time1(1);
 
+g = gausswin(50); % <-- this value determines the width of the smoothing window
+g = g/sum(g);
+g2 = gausswin(25); % <-- this value determines the width of the smoothing window
+g2 = g2/sum(g2);
+
+p_smooth = smooth(smooth(smooth(smooth(power))));
+p_smooth = conv(power, g, 'same');
+t_smooth = conv(Tw1, g2, 'same');
+
 figure, subplot(2,1,1);
-plot(time1, Tw1, ':r', 'LineWidth', 2);
+plot(time1(1:end-25), Tw1(1:end-25), ':r', 'LineWidth', 2);
 xlabel('Time [s]')
 ylabel('Temp C')
-title('Water heating')
+title('Heating water and eggs')
 hold on
-plot(time1, Tr1, ':b', 'LineWidth', 2);
-plot(time1, Tj1, ':m', 'LineWidth', 2);
-plot(time1, refTemp, ':k', 'LineWidth', 2);
+plot(time1(1:end-25), refTemp(1:end-25), ':k', 'LineWidth', 2);
+%plot(time1, t_smooth, ':b', 'LineWidth', 2);
 
-legend('Water temp', 'Room temp', 'Jacket temp', 'Reference temp', 'Location', 'NorthWest');
+legend('Water temp', 'Reference temp', 'Location', 'NorthWest');
 subplot(2,1,2);
-plot(time1, power, ':b', 'LineWidth', 2);
+plot(time1(1:end-25), power(1:end-25), ':b', 'LineWidth', 2);
+hold on;
+plot(time1(1:end-25), p_smooth(1:end-25), ':k', 'LineWidth', 2);
 xlabel('Time [s]')
 ylabel('Power [W]')
-legend('Power input')
+legend('Power input', 'Smoothed power input')
+title('Power input')

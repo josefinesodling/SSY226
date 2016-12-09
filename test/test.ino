@@ -5,33 +5,31 @@
 #include <TimerOne.h>
 #include <LiquidCrystal.h>
 #include <math.h>
-LiquidCrystal lcd(12, 11, 5, 4, 3, 2); // The numbers of the interface pins
+LiquidCrystal lcd(12, 11, 5, 4, 3, 2); // Interface pins
 
 // Constants
-float MINTEMP = 40, MAXTEMP = 90;
-int SAMPLETIME = 10 * 10; //1 second (never smaller than frequency of Timer1.init)
-int DISPLAYTIME = 10 * 1; //1 second (never smaller than frequency of Timer1.init)
+float MINTEMP = 40, MAXTEMP = 90; // Reference temp range
+int SAMPLETIME = 10 * 10; //10 seconds
+int DISPLAYTIME = 10 * 1; //1 second
 
 // Global variables
-int counter = 0, counter2 = 0, counter3 = 0;
-int experiment = 0;
+int counter, counter2, counter3, experiment;
 double a = 1.675091827e-3;
 double b = 1.857536553e-4;
 double c = 5.373169834e-7;
 unsigned long time = millis(), delay_check = millis();
-double analog1Sum = 0, analog2Sum = 0, analog1Sum2 = 0, analog2Sum2 = 0, analog3Sum = 0, analog3Sum2;
+double analog1Sum, analog2Sum, analog1Sum2, analog2Sum2, analog3Sum, analog3Sum2;
 
 // Controller
-double Kp = 30.0, Ki = 1.0;
-double P = 0.0, I = 0.0, error = 0;
+double Kp = 30.0, Ki = 1.0, P, I, error;
 
 // Global shared variables
-volatile float analog0 = 0, analog1 = 0, analog2 = 0, analog3 = 0;
-volatile int pushState = 0, pushOn = 0, has_read = 0, counter10 = 0;
+volatile float analog0, analog1, analog2, analog3;
+volatile int pushState, pushOn, has_read, counter10;
 
 // Variables for the control of the Solid State Relay
-int counter_out = 0, set_out = 0;
-volatile int output_rate = 0; //(0 - 100%)
+int counter_out, set_out ;
+volatile int output_rate; //(0 - 100%)
 
 void setup() {
   lcd.begin(16, 2);    // Set up the LCD display
@@ -78,7 +76,7 @@ void getData(void)
 
 void loop() {
   if (has_read == 1){
-    //-------------------------------------------------------------
+    //----------------------------------------------------------
     // Change push state if push botton has been pressed during the last second
     if (pushOn && ((millis() - delay_check) > 1000)){
       if (pushState == 0){
@@ -96,7 +94,6 @@ void loop() {
       delay_check = millis();
       lcd.clear();
     }
-    
     //-------------------------------------------------------------
     // If push botton has been pressed once, start the program
     if (pushState > 0){

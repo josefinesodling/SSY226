@@ -107,10 +107,11 @@ Tw5x = Tw5(pos5:end);
 
 sr = 1; %4
 
-figure%, subplot(1,2,1);
+figure, subplot(2,1,1);
 plot(downsample(time1x, sr), downsample(Tw1x, sr), ':r', 'LineWidth', 2);
 xlabel('Time [s]')
-ylabel('Temp C')
+s = sprintf('Temperature [%cC]', char(176));
+ylabel(s)
 title('Water heating')
 
 hold on
@@ -145,6 +146,6 @@ for i = 1:600-1
    %Txx(1+i) = T_r - (Txx(i) - T_r)*exp(-k(1));
 end
 
-plot(linspace(1,600,600), Txx1, '.g');
-plot(linspace(1,600,600), Txx2, '.k');
-plot(linspace(1,600,600), Txx3, '.b');
+%plot(linspace(1,600,600), Txx1, '.g');
+%plot(linspace(1,600,600), Txx2, '.k');
+%plot(linspace(1,600,600), Txx3, '.b');

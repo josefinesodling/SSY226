@@ -1,5 +1,5 @@
 clear all
-close all
+%close all
 
 a = 1.675091827e-3;
 b = 1.857536553e-4;
@@ -208,7 +208,8 @@ Tw5x = Tw5(pos5:end);
 Tw6x = Tw6(pos6:end);
 Tw7x = Tw7(pos7:end);
 
-figure%, subplot(1,2,1);
+subplot(2,1,2);
+%figure%, subplot(1,2,1);
 plot(time1(pos1:end)-time1(pos1), Tw1(pos1:end), '*r', 'MarkerSize', 2);
 xlabel('Time [s]')
 s = sprintf('Temperature [%cC]', char(176));
@@ -246,14 +247,15 @@ k(5) = k_exp(2.5,6);
 k(6) = k_exp(2.5,0);
 k(7) = k_exp(2.3,6);
 tempx = {[a + b*exp(-k(1)*timex)],[a + b*exp(-k(2)*timex)],[a + b*exp(-k(3)*timex)],[a + b*exp(-k(4)*timex)],[a + b*exp(-k(5)*timex)],[a + b*exp(-k(6)*timex)],[a + b*exp(-k(7)*timex)]};
-plot(timex, tempx{1},'r');
+
+%plot(timex, tempx{1},'r');
 %hold on
-plot(timex, tempx{2},'r');
-plot(timex, tempx{3},'b');
-plot(timex, tempx{4},'b');
-plot(timex, tempx{5},'k');
-plot(timex, tempx{6},'k');
-plot(timex, tempx{7},'m');
+%plot(timex, tempx{2},'r');
+%plot(timex, tempx{3},'b');
+%plot(timex, tempx{4},'b');
+%plot(timex, tempx{5},'k');
+%plot(timex, tempx{6},'k');
+%plot(timex, tempx{7},'m');
 ylim([55,70]);
 
 kon = exp(-k(1));
@@ -286,13 +288,14 @@ end
 
 %plot(linspace(1,5000,5000), Tx, '*g');
 %plot(linspace(1,5000,5000), Txx1, '*r');
-plot(linspace(1,5000,5000), Txx1, '*r', 'MarkerSize', 2);
-plot(linspace(1,5000,5000), Txx3, '*b', 'MarkerSize', 2);
-plot(linspace(1,5000,5000), Txx5, '*k', 'MarkerSize', 2);
 
-plot(linspace(1,5000,5000), Txx2, '^r', 'MarkerSize', 2);
-plot(linspace(1,5000,5000), Txx4, '^b', 'MarkerSize', 2);
-plot(linspace(1,5000,5000), Txx6, '^k', 'MarkerSize', 2);
+%plot(linspace(1,5000,5000), Txx1, '*r', 'MarkerSize', 2);
+%plot(linspace(1,5000,5000), Txx3, '*b', 'MarkerSize', 2);
+%plot(linspace(1,5000,5000), Txx5, '*k', 'MarkerSize', 2);
+
+%plot(linspace(1,5000,5000), Txx2, '^r', 'MarkerSize', 2);
+%plot(linspace(1,5000,5000), Txx4, '^b', 'MarkerSize', 2);
+%plot(linspace(1,5000,5000), Txx6, '^k', 'MarkerSize', 2);
 
 %subplot(1,2,2);
 %plot(time1h-time1h(1), Tw1h, 'r*')
@@ -323,10 +326,10 @@ kk = (1.85e-5.*mass.^2 - 0.0001154.*mass + 0.0002494) + flowrate*(1.434e-5.*mass
 
 
 
-figure
-plot(mass, k_np, '*b');
-hold on
-plot(mass, k_p, '*m');
+%figure
+%plot(mass, k_np, '*b');
+%hold on
+%plot(mass, k_p, '*m');
 %plot(mass, k_dif, 'r*')
-plot(mass, kk, 'g*');
-legend('No pump', 'Pump', 'Data fit')
+%plot(mass, kk, 'g*');
+%legend('No pump', 'Pump', 'Data fit')

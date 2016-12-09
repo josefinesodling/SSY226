@@ -15,25 +15,19 @@ int DISPLAYTIME = 10 * 1; //1 second (never smaller than frequency of Timer1.ini
 // Global variables
 int counter = 0, counter2 = 0, counter3 = 0;
 int experiment = 0;
-double analog1Sum = 0, analog2Sum = 0, analog1Sum2 = 0, analog2Sum2 = 0, analog3Sum = 0, analog3Sum2;
-unsigned long time = millis(), delay_check = millis();
 double a = 1.675091827e-3;
 double b = 1.857536553e-4;
 double c = 5.373169834e-7;
+unsigned long time = millis(), delay_check = millis();
+double analog1Sum = 0, analog2Sum = 0, analog1Sum2 = 0, analog2Sum2 = 0, analog3Sum = 0, analog3Sum2;
 
-double Kp = 30.0;
-double Ki = 1.0;
-double Kd = 0.00;
-double P = 0.0;
-double I = 0.0;
-double D = 0.0;
-double error = 0;
-double error_prior = 0;
+// Controller
+double Kp = 30.0, Ki = 1.0;
+double P = 0.0, I = 0.0, error = 0;
 
 // Global shared variables
-volatile float analog0 = 0, analog1 = 0, analog2 = 0, analog3 = 0, pushOn = 0, has_read = 0;
-volatile int pushState = 0;
-volatile int counter10 = 0;
+volatile float analog0 = 0, analog1 = 0, analog2 = 0, analog3 = 0;
+volatile int pushState = 0, pushOn = 0, has_read = 0, counter10 = 0;
 
 // Variables for the control of the Solid State Relay
 int counter_out = 0, set_out = 0;
@@ -57,7 +51,7 @@ void getData(void)
   pushOn = digitalRead(7);
   has_read = 1;
   
-  //--------------------------------------------------------------------
+  //-----------------------------------------------------------
   // SSR set on/off over 10 seconds
   if (pushState > 0){
     counter_out += 1;
@@ -69,7 +63,7 @@ void getData(void)
       digitalWrite(6, LOW);
       digitalWrite(8, LOW);
     }
-    //When 10 seconds has passed, get new set_out value from the controller
+    //When 10 seconds has passed, get new set_out value
     if (counter_out == 100){
       counter_out = 0;
       counter10 += 10;
@@ -79,12 +73,12 @@ void getData(void)
       }
     }
   }
-  // --------------------------------------------------------------------
+  // -----------------------------------------------------------
 }
 
 void loop() {
   if (has_read == 1){
-    //-------------------------------------------------------------------------
+    //-------------------------------------------------------------
     // Change push state if push botton has been pressed during the last second
     if (pushOn && ((millis() - delay_check) > 1000)){
       if (pushState == 0){
@@ -103,39 +97,36 @@ void loop() {
       lcd.clear();
     }
     
-    //------------------------------------------------------------------------
+    //-------------------------------------------------------------
     // If push botton has been pressed once, start the program
     if (pushState > 0){
       double T1, T2, T3;
-      //----------------------------------------------------------------------
-      // Set ref-temp from potentiometer -------------------------------------
+      //-----------------------------------------------------------
+      // Set ref-temp from potentiometer --------------------------
       double refT = ((MAXTEMP-MINTEMP)/1023)*analog0 + MINTEMP;
       int refT_int = round(refT);
 
+      // If running experiment, ref-temp is predefined
       if (experiment){
-
-      if (counter10 < 400){
-        refT_int = 50;
-        }
-      else if ((counter10 >= 400) && (counter10 < 700)){
-        refT_int = 60;
-        }
-      else if ((counter10 >= 700) && (counter10 < 900)){
-        refT_int = 70;
-        }
-      else if ((counter10 >= 900) && (counter10 < 1300)){
-        refT_int = 90;
-        }
-      else if ((counter10 >= 1300) && (counter10 < 2000)){
-        refT_int = 85;
-        }
-      else{
-        refT_int = 90;
-        }
+        if (counter10 < 400){
+          refT_int = 50;
+          }
+        else if ((counter10 >= 400) && (counter10 < 700)){
+          refT_int = 60;
+          }
+        else if ((counter10 >= 700) && (counter10 < 900)){
+          refT_int = 70;
+          }
+        else if ((counter10 >= 900) && (counter10 < 1300)){
+          refT_int = 90;
+          }
+        else if ((counter10 >= 1300) && (counter10 < 2000)){
+          refT_int = 85;
+          }
+        else{
+          refT_int = 90;
+          }
       }
-
-      
-      //output_rate = round((refT_int-30)*2);
 
       if (counter3 > 4){
         counter3 = 0;
@@ -144,8 +135,8 @@ void loop() {
         counter3 += 1;
       }
 
-      //----------------------------------------------------------------------
-      // Mean value from DISPLAYTIME amount of samples -----------------------
+      //-----------------------------------------------------------
+      // Mean value from DISPLAYTIME amount of samples ------------
       if ((counter+1) < DISPLAYTIME) {
         noInterrupts();
     	  analog1Sum += analog1/(DISPLAYTIME-1);
@@ -155,25 +146,22 @@ void loop() {
     	  counter += 1;
       }
       else {
-        //--------------------------------------------------------------------
-        // Calculate temperature for the LCD display -------------------------
-    	  double R1 = (2250600/analog1Sum - 2200);			    // Mean resistance
+        //---------------------------------------------------------
+        // Calculate temperature for the LCD display --------------
+    	  double R1 = (2250600/analog1Sum - 2200);
         T1 = log(R1);
-        T1 = 1 /(a + (b + (c * T1 * T1 ))* T1 );
-        T1 -= 273.15;
-    	  double R2 = (2250600/analog2Sum - 2200);			    // Mean resistance
+        T1 = (1 /(a + (b + (c * T1 * T1 ))* T1 )) - 273.15;
+    	  double R2 = (2250600/analog2Sum - 2200);
     	  T2 = log(R2);
-        T2 = 1 /(a + (b + (c * T2 * T2 ))* T2 );
-        T2 -= 273.15;
-        double R3 = (2250600/analog3Sum - 2200);          // Mean resistance
+        T2 = (1 /(a + (b + (c * T2 * T2 ))* T2 )) - 273.15;
+        double R3 = (2250600/analog3Sum - 2200);
         T3 = log(R3);
-        T3 = 1 /(a + (b + (c * T3 * T3 ))* T3 );
-        T3 -= 273.15;
-    	  counter = 0, analog1Sum = 0, analog2Sum = 0, analog3Sum = 0;
+        T3 = (1 /(a + (b + (c * T3 * T3 ))* T3 )) - 273.15;
+    	  counter=0, analog1Sum=0, analog2Sum=0, analog3Sum=0;
       }
       
-      //----------------------------------------------------------------------
-      // Mean value from SAMPLETIME amount of samples ------------------------
+      //-----------------------------------------------------------
+      // Mean value from SAMPLETIME amount of samples -------------
       if ((counter2+1) < SAMPLETIME) {
         noInterrupts();
         analog1Sum2 += analog1/(SAMPLETIME-1);
@@ -183,21 +171,22 @@ void loop() {
         counter2 += 1;
       }
       else {
-        // Print sample data
+        // Print sample data to computer via serial
         Serial.println(time);
         Serial.println(analog1Sum2);
         Serial.println(analog2Sum2);
         Serial.println(analog3Sum2);
+        Serial.println(refT_int);
 
         //Calculate control output
-        double R1 = (2250600/analog1Sum2 - 2200);          // Mean resistance
+        double R1 = (2250600/analog1Sum2 - 2200);
         T1 = log(R1);
-        T1 = 1 /(a + (b + (c * T1 * T1 ))* T1 );
-        T1 -= 273.15;
+        T1 = (1 /(a + (b + (c * T1 * T1 ))* T1 )) - 273.15;
         
         error = refT_int - T1;
         P = error;
-        
+
+        // Reset the integral part if outside error range
         if ((error < 1) && (error > 0)){
           I += error * SAMPLETIME*0.1;
         }
@@ -205,25 +194,22 @@ void loop() {
           I = 0;
         }
         
-        //D = ((error – error_prior)/(SAMPLETIME*0.1));
-        output_rate = round(Kp*P + Ki*I); // + Kd*D;
+        output_rate = round(Kp*P + Ki*I);
 
         if (output_rate > 100){
           output_rate = 100;
-          }
+        }
         else if ((output_rate < 0) || (error < -0.05)){
           output_rate = 0;
-          }
+        }
 
-        Serial.println(refT_int);
         Serial.println(output_rate);
 
-        error_prior = error;
-        counter2 = 0, analog1Sum2 = 0, analog2Sum2 = 0, analog3Sum2 = 0;
+        counter2=0, analog1Sum2=0, analog2Sum2=0, analog3Sum2=0;
       }
       
-      //----------------------------------------------------------------------
-      // --- Set LCD display strings -----------------------------------------  
+      //--------------------------------------------------------
+      // --- Set LCD display strings ---------------------------
       if ((pushState == 1) && (counter == 0)){
         // Line 1 - Reference temperature
         lcd.setCursor(0, 0);
@@ -234,25 +220,19 @@ void loop() {
         
         // Line 2 - The measured, calculated temperature
     	  lcd.setCursor(0, 1);
-    	  lcd.print(T1, 1);		// The temperature value
-    	  //lcd.print((char)223);
-    	  //lcd.print("C/");
+    	  lcd.print(T1, 1);		// Water temp
         lcd.print("|");
-    	  lcd.print(T2, 1);		// The temperature value
-    	  //lcd.print((char)223);
-    	  //lcd.print("C");
+    	  lcd.print(T2, 1);		// Room temp
         lcd.print("|");
-        lcd.print(T3, 1);    // The temperature value
+        lcd.print(T3, 1);   // Jacket temp
       }
       else if ((pushState == 2) && (counter3 == 0)){
         lcd.setCursor(0, 0);
-        //lcd.print("A1:");
-        lcd.print(round(analog1));
+        lcd.print(round(analog1)); // Water analog
         lcd.print("|");
-        //lcd.print("/A2:");
-        lcd.print(round(analog2));
+        lcd.print(round(analog2)); // Room analog
         lcd.print("|");
-        lcd.print(round(analog3));
+        lcd.print(round(analog3)); // Jacket analog
         lcd.setCursor(0, 1);
         lcd.print("Samp_t:");
         lcd.print(0.1*SAMPLETIME, 1);
@@ -266,9 +246,6 @@ void loop() {
         lcd.print("W|");
         lcd.print(set_out);
         lcd.print("%");
-        lcd.setCursor(0, 1);
-        lcd.print("Kp:");
-        lcd.print(Kp);
       }
     }
     else{

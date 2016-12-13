@@ -1,7 +1,7 @@
 % clear all
 % clc
 % %% INSERT POWER gives FLOW! this is maximum
-% F = [0.001 0.002 0.005 0.006 0.008 0.01 0.02 0.05 0.06 0.08 0.09 0.1]/(10^3);                         % flow 6[liter/min] gives 0.1/10^3[m^3/s]
+% F = [0.001 0.002 0.005 0.006 0.008 0.01 0.02 0.05 0.06 0.08 0.09 0.1]/(10^3);   % flow 6[liter/min] gives 0.0001[m^3/s]
 % P = 35;
 % %% Calculate pressure diff
 % d = 0.01;                               % [m]innerdiameter of the hose
@@ -9,7 +9,7 @@
 % v = F(12)/A_inner;                          % velocity inside hose [m/s]
 % rho = 1000;                             % [kg/m^3]
 % L = 1.5;                                % [m] length of hose
-% eta = 0.87*0.94;                        % efficiensy
+% eta = 0.87*0.94;                        % efficiency
 % %viskositet [m/s^2]
 % visk = [1.792 1.519 1.308 1.005 .801 .656 .549 .469 .406 .357 .317 .284]./1000000;
 % temp = [0 5 10 20 30 40 50 60 70 80 90 100];

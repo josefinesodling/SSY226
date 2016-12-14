@@ -17,7 +17,7 @@ int counter, counter2, counter3, experiment;
 double a = 1.675091827e-3;
 double b = 1.857536553e-4;
 double c = 5.373169834e-7;
-unsigned long time = millis(), delay_check = millis();
+unsigned long time = millis(), delay_check = millis(), delay_check2 = millis();
 double analog1Sum, analog2Sum, analog1Sum2, analog2Sum2, analog3Sum, analog3Sum2;
 
 // Controller
@@ -25,11 +25,26 @@ double Kp = 30.0, Ki = 1.0, P, I, error;
 
 // Global shared variables
 volatile float analog0, analog1, analog2, analog3;
-volatile int pushState, pushOn, has_read, counter10;
+volatile int pushState, pushState2, pushOn, pushOn2, has_read, counter10;
 
 // Variables for the control of the Solid State Relay
 int counter_out, set_out ;
 volatile int output_rate; //(0 - 100%)
+
+// Variables to control eggs
+volatile int eggMenuState = 0;
+volatile unsigned long int eggTime = 40;
+volatile int eggMenuClock = 0;
+
+volatile int eggIndexArr[100] = {};
+volatile unsigned long eggTimeArr[100] = {};
+volatile unsigned long eggStartTimeArr[100] = {};
+volatile int arrLen = -1;
+volatile int eggIndexCount = 1;
+volatile int eggDone = 0;
+volatile int eggIndexDone = 0;
+volatile int eggConfirm = 0;
+volatile int inBuff = 0;
 
 void setup() {
   lcd.begin(16, 2);    // Set up the LCD display
@@ -37,6 +52,8 @@ void setup() {
   pinMode(7, INPUT);   // Pushbutton pin
   pinMode(6, OUTPUT);  // LED diode pin
   pinMode(8, OUTPUT);  // SSR heater pin
+  pinMode(9, INPUT);   // Pushbutton pin
+  pinMode(10, OUTPUT);  // LED diode pin
   // Set up interrupts
   Timer1.initialize(100000); // Do not change (10 HZ)
   Timer1.attachInterrupt(getData); // Run getData with 10 HZ
@@ -46,7 +63,7 @@ void getData(void)
 {
   time = millis();
   analog0 = analogRead(0), analog1 = analogRead(1), analog2 = analogRead(2), analog3 = analogRead(3);
-  pushOn = digitalRead(7);
+  pushOn = digitalRead(7), pushOn2 = digitalRead(9);
   has_read = 1;
   
   //-----------------------------------------------------------
@@ -71,6 +88,82 @@ void getData(void)
       }
     }
   }
+  if (eggMenuState == 2)
+  {
+    eggMenuClock += 1;
+    if (eggMenuClock > 40){
+      eggMenuClock = 0;
+      eggMenuState = 3;
+      lcd.clear();
+    }
+  }
+  if ((arrLen > -1) && (eggDone == 0) && eggMenuState == 0)
+  {
+    for(int i = 0; i<arrLen+1; i++){
+        //Serial.println(eggIndexArr[i]);
+        //Serial.println(eggTimeArr[i]);
+        //Serial.println(eggStartTimeArr[i]);
+        if (millis() - eggStartTimeArr[i] > eggTimeArr[i]){
+          //Serial.println(eggIndexArr[i]);
+          eggDone = 1;
+          eggIndexDone = i;
+          lcd.clear();
+          break;
+          }
+        
+      }
+  }
+  if ((eggDone == 1) && (eggConfirm == 1)){
+    eggConfirm = 0;
+    eggDone = 0;
+    //arrLen -= 1;
+    //inBuff -=1;
+
+    //Serial.println(eggIndexArr[eggIndexDone]);
+    //Serial.println(eggTimeArr[eggIndexDone]);
+    //Serial.println(eggStartTimeArr[eggIndexDone]);
+
+    int temparr1[100] = {};
+    unsigned long temparr2[100] = {};
+    unsigned long temparr3[100] = {};
+    int count = 0;
+    for(int i = 0; i<arrLen+1; i++){
+      if (i == eggIndexDone){
+        
+        }
+      else{
+          temparr1[count] = eggIndexArr[i];
+          temparr2[count] = eggTimeArr[i];
+          temparr3[count] = eggStartTimeArr[i];
+          count += 1;
+      }
+      eggIndexArr[i] = 0;
+      eggTimeArr[i] = 0;
+      eggStartTimeArr[i] = 0;
+    }
+
+    arrLen -= 1;
+
+    for(int i = 0; i<arrLen+1; i++){
+      
+          eggIndexArr[i] = temparr1[i];
+          eggTimeArr[i] = temparr2[i];
+          eggStartTimeArr[i] = temparr3[i];
+        
+      }
+    
+    //eggIndexArr[eggIndexDone] = {};
+    //eggTimeArr[eggIndexDone] = {};
+    //eggStartTimeArr[eggIndexDone] = {};
+    lcd.clear();
+    }
+    
+   if (eggDone == 1){
+      digitalWrite(10, HIGH);
+    }
+    else{
+      digitalWrite(10, LOW);
+    }
   // -----------------------------------------------------------
 }
 
@@ -78,21 +171,93 @@ void loop() {
   if (has_read == 1){
     //----------------------------------------------------------
     // Change push state if push botton has been pressed during the last second
-    if (pushOn && ((millis() - delay_check) > 1000)){
-      if (pushState == 0){
-        pushState = 1;
+    if (pushOn && ((millis() - delay_check) > 200)){
+      if (eggDone < 1){
+      if (eggMenuState < 1){
+        if (pushState == 0){
+          pushState = 1;
+        }
+        else if (pushState == 1){
+          pushState = 2;
+        }
+        else if (pushState == 2){
+          pushState = 3;
+        }
+        else if (pushState == 3){
+          pushState = 1;
+        }
       }
-      else if (pushState == 1){
-        pushState = 2;
+
+      if (eggMenuState == 1){
+        eggMenuState = 0;
       }
-      else if (pushState == 2){
-        pushState = 3;
+      else if (eggMenuState == 2){
+        eggTime -= 1;
+        if (eggTime < 1){
+          eggTime = 1;
+          }
+        eggMenuClock = 0;
       }
-      else if (pushState == 3){
-        pushState = 1;
+      else if (eggMenuState == 3){
+        eggMenuState = 0;
+        eggTime = 40;
       }
+      else if (eggMenuState == 4){
+          eggIndexArr[arrLen+1] = eggIndexCount;
+          eggTimeArr[arrLen+1] = eggTime*1000*60;
+          eggStartTimeArr[arrLen+1] = millis();
+          arrLen += 1;
+          inBuff += 1;
+          eggIndexCount += 1;
+          
+          eggMenuState = 0;
+        }
+      }
+      else{
+        eggConfirm = 1;
+      }
+      
       delay_check = millis();
       lcd.clear();
+    }
+    
+    if (pushState > 0){
+      if (pushOn2 && ((millis() - delay_check2) > 200)){
+        if (eggDone < 1){
+        if (eggMenuState == 0){
+          eggMenuState = 1;
+        }
+        else if (eggMenuState == 1){
+          eggMenuState = 2;
+        }
+        else if (eggMenuState == 2){
+          eggTime += 1;
+          if (eggTime > 120){
+            eggTime = 120;
+            }
+          eggMenuClock = 0;
+        }
+        else if (eggMenuState == 3){
+          eggMenuState = 4;
+        }
+        else if (eggMenuState == 4){
+          eggIndexArr[arrLen+1] = eggIndexCount;
+          eggTimeArr[arrLen+1] = eggTime*1000*60;
+          eggStartTimeArr[arrLen+1] = millis();
+          arrLen += 1;
+          inBuff += 1;
+          eggIndexCount += 1;
+
+          //eggTime = 40;
+          eggMenuState = 0;
+        }
+        }
+        else{
+          eggConfirm = 1;
+          }
+        delay_check2 = millis();
+        lcd.clear();
+      }
     }
     //-------------------------------------------------------------
     // If push botton has been pressed once, start the program
@@ -154,6 +319,11 @@ void loop() {
         double R3 = (2250600/analog3Sum - 2200);
         T3 = log(R3);
         T3 = (1 /(a + (b + (c * T3 * T3 ))* T3 )) - 273.15;
+        
+        Serial.println(analog1Sum);
+        Serial.println(refT_int);
+        Serial.println(output_rate);
+        
     	  counter=0, analog1Sum=0, analog2Sum=0, analog3Sum=0;
       }
       
@@ -169,11 +339,11 @@ void loop() {
       }
       else {
         // Print sample data to computer via serial
-        Serial.println(time);
-        Serial.println(analog1Sum2);
-        Serial.println(analog2Sum2);
-        Serial.println(analog3Sum2);
-        Serial.println(refT_int);
+        //Serial.println(time);
+        //Serial.println(analog1Sum2);
+        //Serial.println(analog2Sum2);
+        //Serial.println(analog3Sum2);
+        //Serial.println(refT_int);
 
         //Calculate control output
         double R1 = (2250600/analog1Sum2 - 2200);
@@ -200,57 +370,97 @@ void loop() {
           output_rate = 0;
         }
 
-        Serial.println(output_rate);
+        //Serial.println(output_rate);
 
         counter2=0, analog1Sum2=0, analog2Sum2=0, analog3Sum2=0;
       }
       
       //--------------------------------------------------------
       // --- Set LCD display strings ---------------------------
-      if ((pushState == 1) && (counter == 0)){
-        // Line 1 - Reference temperature
-        lcd.setCursor(0, 0);
-        lcd.print("Ref.temp: ");
-        lcd.print(refT_int);	// The ref-temp value
-        lcd.print((char)223);
-        lcd.print("C");     
-        
-        // Line 2 - The measured, calculated temperature
-    	  lcd.setCursor(0, 1);
-    	  lcd.print(T1, 1);		// Water temp
-        lcd.print("|");
-    	  lcd.print(T2, 1);		// Room temp
-        lcd.print("|");
-        lcd.print(T3, 1);   // Jacket temp
+      if (eggDone < 1){
+      if (eggMenuState < 1){
+        if ((pushState == 1) && (counter == 0)){
+          // Line 1 - Reference temperature
+          lcd.setCursor(0, 0);
+          lcd.print("Ref.temp: ");
+          lcd.print(refT_int);	// The ref-temp value
+          lcd.print((char)223);
+          lcd.print("C");     
+          
+          // Line 2 - The measured, calculated temperature
+      	  lcd.setCursor(0, 1);
+      	  lcd.print(T1, 1);		// Water temp
+          lcd.print("|");
+      	  lcd.print(T2, 1);		// Room temp
+          lcd.print("|");
+          lcd.print(T3, 1);   // Jacket temp
+        }
+        else if ((pushState == 2) && (counter3 == 0)){
+          lcd.setCursor(0, 0);
+          lcd.print(round(analog1)); // Water analog
+          lcd.print("|");
+          lcd.print(round(analog2)); // Room analog
+          lcd.print("|");
+          lcd.print(round(analog3)); // Jacket analog
+          lcd.setCursor(0, 1);
+          lcd.print("Samp_t:");
+          lcd.print(0.1*SAMPLETIME, 1);
+          lcd.print("s");
+        }
+        else if ((pushState == 3) && (counter3 == 0)){
+          int power = (1218.0/100.0)*set_out;
+          lcd.setCursor(0, 0);
+          lcd.print("Power:");
+          lcd.print(power);
+          lcd.print("W|");
+          lcd.print(set_out);
+          lcd.print("%");
+        }
       }
-      else if ((pushState == 2) && (counter3 == 0)){
-        lcd.setCursor(0, 0);
-        lcd.print(round(analog1)); // Water analog
-        lcd.print("|");
-        lcd.print(round(analog2)); // Room analog
-        lcd.print("|");
-        lcd.print(round(analog3)); // Jacket analog
-        lcd.setCursor(0, 1);
-        lcd.print("Samp_t:");
-        lcd.print(0.1*SAMPLETIME, 1);
-        lcd.print("s");
-      }
-      else if ((pushState == 3) && (counter3 == 0)){
-        int power = (1218.0/100.0)*set_out;
-        lcd.setCursor(0, 0);
-        lcd.print("Power:");
-        lcd.print(power);
-        lcd.print("W|");
-        lcd.print(set_out);
-        lcd.print("%");
-      }
-    }
     else{
-      lcd.setCursor(0, 0);
-      lcd.print("Waiting for");
-      lcd.setCursor(0, 1);
-      lcd.print("pushbutton...");
+        if (eggMenuState == 1){
+          lcd.setCursor(0, 0);
+          lcd.print("Init food #");
+          lcd.print(eggIndexCount);
+          lcd.setCursor(0, 1);
+          lcd.print("to system [Y/N]?");
+          }
+        else if (eggMenuState == 2){
+          lcd.setCursor(0, 0);
+          lcd.print("Set cooking time");
+          lcd.setCursor(0, 1);
+          lcd.print("Time: ");
+          lcd.print(eggTime);
+          lcd.print(" min");
+          }
+         else if (eggMenuState == 3){
+          lcd.setCursor(0, 0);
+          lcd.print("Add food #");
+          lcd.print(eggIndexCount);
+          lcd.setCursor(0, 1);
+          lcd.print("to system [Y/N]?");
+          }
+          else if (eggMenuState == 4){
+          lcd.setCursor(0, 0);
+          lcd.print("Food #");
+          lcd.print(eggIndexCount);
+          lcd.print(" added!");
+          }
+      }
+      }
+      else{
+        lcd.setCursor(0, 0);
+        lcd.print("Food #");
+        lcd.print(eggIndexArr[eggIndexDone]);
+        lcd.print(" is done!");
+        }
     }
+     else{
+        lcd.setCursor(0, 0);
+        lcd.print("Waiting for");
+        lcd.setCursor(0, 1);
+        lcd.print("pushbutton...");
+      }
     has_read = 0;
   }
 }

@@ -5,6 +5,10 @@ import numpy as np
 import time
 import math
 
+import serial
+s = serial.Serial(port='/dev/cu.usbmodem14111', baudrate=9600)
+
+
 data = []
 with open('test.txt') as input_file:
     for line in input_file:
@@ -174,9 +178,19 @@ while 1:
     start_time = time.time()
 
     # Read data from Arduino -------------
-    read_T1 = T1[counter]
-    read_Tref = Tref[counter]
-    read_Power = Power[counter]
+    #read_T1 = T1[counter]
+    #read_Tref = Tref[counter]
+    #read_Power = Power[counter]
+
+    read_T1 = s.readline().splitlines()
+    read_T1 = float(read_T1[0])
+    read_Tref = s.readline().splitlines()
+    read_Tref = int(read_Tref[0])
+    read_Power = s.readline().splitlines()
+    read_Power = int(read_Power[0])
+
+    #print(read_T1, read_Tref, read_Power)
+
     # ------------------------------------
 
     # Calculate data
@@ -272,10 +286,10 @@ while 1:
 
     plt.draw()
     plt.pause(0.0001)
-    sleeptime = 1 - (time.time() - start_time)
-    if sleeptime >= 0:
-        time.sleep(sleeptime)
-    counter += 1
+    #sleeptime = 1 - (time.time() - start_time)
+    #if sleeptime >= 0:
+    #    time.sleep(sleeptime)
+    #counter += 1
 
 
 
